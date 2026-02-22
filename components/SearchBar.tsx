@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePlaylistStore } from "@/store/playlistStore";
 
 interface Props {
@@ -9,17 +9,39 @@ interface Props {
   disabled?: boolean;
 }
 
-const SUGGESTIONS = [
+const SUGGESTIONS_POOL = [
   "early rap in New York",
   "acid house Chicago 1987",
   "Brazilian bossa nova classics",
   "lo-fi hip hop study beats",
   "post-punk Berlin 80s",
+  "90s jungle and drum & bass",
+  "deep soul and Motown",
+  "French house Filter Disco",
+  "Japanese city pop essentials",
+  "psychedelic rock 1969",
+  "UK garage 2-step vibes",
+  "Ethiopian jazz from the 70s",
+  "Detroit techno origins",
+  "Italo disco dancefloor",
+  "minimal ambient soundscapes",
+  "dub reggae fundamentals",
+  "classic trance at 4am",
+  "Afrobeat pioneers",
+  "ska and rocksteady",
+  "90s grunge and flannel",
 ];
 
 export function SearchBar({ onSearch, loading, disabled }: Props) {
   const { setPrompt, prompt } = usePlaylistStore();
   const [input, setInput] = useState(prompt);
+  const [suggestions, setSuggestions] = useState<string[]>(SUGGESTIONS_POOL.slice(0, 5));
+
+  // Randomize suggestions on mount to avoid hydration mismatch
+  useEffect(() => {
+    const shuffled = [...SUGGESTIONS_POOL].sort(() => 0.5 - Math.random());
+    setSuggestions(shuffled.slice(0, 5));
+  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,7 +98,7 @@ export function SearchBar({ onSearch, loading, disabled }: Props) {
 
       {/* Quick suggestions */}
       <div className="flex flex-wrap gap-2">
-        {SUGGESTIONS.map((s) => (
+        {suggestions.map((s) => (
           <button
             key={s}
             type="button"

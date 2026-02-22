@@ -13,7 +13,6 @@ export function SavePlaylistButton() {
   const matchedCount = tracks.filter((t) => t.matchStatus === "matched").length;
 
   async function handleSave() {
-    console.log("[SavePlaylistButton] handleSave started");
     setSaving(true);
     setError(null);
     setPhase("saving");
@@ -29,11 +28,8 @@ export function SavePlaylistButton() {
         }),
       });
 
-      console.log("[SavePlaylistButton] fetch response status:", res.status);
-
       if (!res.ok) {
         const text = await res.text();
-        console.error("[SavePlaylistButton] save failed text:", text);
         let errorMsg = "Save failed";
         try {
           const body = JSON.parse(text);
@@ -48,19 +44,15 @@ export function SavePlaylistButton() {
       }
 
       const data = await res.json();
-      console.log("[SavePlaylistButton] save success data:", data);
       const { playlist } = data;
       setLocalSavedUrl(playlist.url);
       setSavedUrl(playlist.url);
       setPhase("saved");
-      console.log("[SavePlaylistButton] phase set to saved");
     } catch (err) {
-      console.error("[SavePlaylistButton] fetch error:", err);
       setError("Network or server error");
       setPhase("matched");
     } finally {
       setSaving(false);
-      console.log("[SavePlaylistButton] saving set to false");
     }
   }
 
