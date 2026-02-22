@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const mono = Geist_Mono({
+const mono = Space_Mono({
   subsets: ["latin"],
+  weight: ["400", "700"],
   variable: "--font-mono",
 });
 
