@@ -15,11 +15,18 @@ export async function matchTrack(
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`[spotify] matchTrack failed (${res.status}):`, errText);
+    return null;
+  }
 
   const data = await res.json();
   const item = data?.tracks?.items?.[0];
-  if (!item) return null;
+  if (!item) {
+    console.warn(`[spotify] no match found for: ${track.title} – ${track.artist}`);
+    return null;
+  }
 
   return {
     spotifyId: item.id,
@@ -37,15 +44,17 @@ export async function matchTrack(
 // ── Create playlist ───────────────────────────────────────────────────────────
 
 export async function createPlaylist(
-  userId: string,
+  _userId: string,
   name: string,
   description: string,
   uris: string[],
   accessToken: string
 ): Promise<SavedPlaylist> {
-  // 1. Create empty playlist
+  console.log(`[spotify] createPlaylist: creating "${name}" for user...`);
+
+  // 1. Create empty public playlist explicitly
   const createRes = await fetch(
-    `${SPOTIFY_API}/users/${userId}/playlists`,
+    `${SPOTIFY_API}/me/playlists`,
     {
       method: "POST",
       headers: {
@@ -55,23 +64,33 @@ export async function createPlaylist(
       body: JSON.stringify({
         name,
         description,
-        public: false,
+        public: true,
       }),
     }
   );
 
   if (!createRes.ok) {
     const err = await createRes.text();
+    console.error(`[spotify] createPlaylist failed (${createRes.status}):`, err);
     throw new Error(`Failed to create playlist: ${err}`);
   }
 
   const playlist = await createRes.json();
+  const ownerId = playlist.owner?.id;
+  console.log(`[spotify] playlist created: ${playlist.id}. Owner: ${ownerId}, Public: ${playlist.public}`);
 
-  // 2. Add tracks in batches of 100 (Spotify limit)
+  // 2. Extra delay for propagation
+  console.log("[spotify] waiting 2s for propagation...");
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  // 3. Add tracks in batches of 100
   for (let i = 0; i < uris.length; i += 100) {
     const batch = uris.slice(i, i + 100);
+    console.log(`[spotify] adding ${batch.length} items to ${playlist.id}. First URI: ${batch[0]}`);
+
+    // Update Feb 2026: Use /items instead of /tracks
     const addRes = await fetch(
-      `${SPOTIFY_API}/playlists/${playlist.id}/tracks`,
+      `${SPOTIFY_API}/playlists/${playlist.id}/items`,
       {
         method: "POST",
         headers: {
@@ -81,10 +100,13 @@ export async function createPlaylist(
         body: JSON.stringify({ uris: batch }),
       }
     );
+
     if (!addRes.ok) {
       const err = await addRes.text();
-      throw new Error(`Failed to add tracks: ${err}`);
+      console.error(`[spotify] addItems failed (${addRes.status}):`, err);
+      throw new Error(`Failed to add items: ${err}`);
     }
+    console.log("[spotify] batch added successfully");
   }
 
   return {
@@ -103,7 +125,15 @@ export async function getSpotifyUser(
   const res = await fetch(`${SPOTIFY_API}/me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  if (!res.ok) throw new Error("Failed to fetch Spotify user");
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`[spotify] getSpotifyUser failed (${res.status}):`, errText);
+    throw new Error(`Failed to fetch Spotify user: ${errText}`);
+  }
   const data = await res.json();
-  return { id: data.id, displayName: data.display_name };
+  return {
+    id: data.id,
+    displayName: data.display_name,
+    // Note: 'product' field was removed in Feb 2026
+  };
 }

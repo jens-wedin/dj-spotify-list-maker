@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { createPlaylist, getSpotifyUser } from "@/lib/spotify";
 import type { PlaylistTrack } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const accessToken = (session as { accessToken?: string })?.accessToken;
 
   if (!accessToken) {
@@ -28,14 +29,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { id: userId } = await getSpotifyUser(accessToken);
-  const playlist = await createPlaylist(
-    userId,
-    name || "DJ Mix",
-    description || "",
-    uris,
-    accessToken
-  );
-
-  return NextResponse.json({ playlist });
+  try {
+    const { id: userId } = await getSpotifyUser(accessToken);
+    console.log(`[spotify-save] user: ${userId}`);
+    const playlist = await createPlaylist(
+      userId,
+      name || "DJ Mix",
+      description || "",
+      uris,
+      accessToken
+    );
+    return NextResponse.json({ playlist });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[spotify-save] error:", message, err);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

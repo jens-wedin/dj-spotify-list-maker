@@ -28,8 +28,15 @@ export function SavePlaylistButton() {
     });
 
     if (!res.ok) {
-      const body = await res.json();
-      setError(body.error ?? "Save failed");
+      const text = await res.text();
+      let errorMsg = "Save failed";
+      try {
+        const body = JSON.parse(text);
+        errorMsg = body.error ?? errorMsg;
+      } catch {
+        if (text) errorMsg = text;
+      }
+      setError(errorMsg);
       setPhase("matched");
       setSaving(false);
       return;
