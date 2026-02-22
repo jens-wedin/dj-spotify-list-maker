@@ -12,6 +12,10 @@ out/
 .env.local
 .env.*.local
 
+# Cloudflare / OpenNext duplicate config files (should not be committed)
+open-next.config 2.ts
+wrangler 2.jsonc
+
 # Misc
 .DS_Store
 *.pem
