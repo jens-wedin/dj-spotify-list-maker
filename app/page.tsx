@@ -88,11 +88,11 @@ export default function Home() {
       )}
 
       {/* Track list */}
-      {(phase === "editing" || phase === "matched" || phase === "matching") && (
+      {(phase === "editing" || phase === "matched" || phase === "matching" || phase === "saving" || phase === "saved") && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-booth-accent font-bold uppercase tracking-widest text-xs">
-              {phase === "matched" ? "Spotify Matched" : "DJ Pick —"}{" "}
+              {phase === "saved" ? "Playlist Saved" : phase === "matched" ? "Spotify Matched" : "DJ Pick —"}{" "}
               {tracks.length} tracks
             </h2>
 
@@ -116,8 +116,8 @@ export default function Home() {
 
           <TrackList />
 
-          {/* Save — only when matched */}
-          {phase === "matched" && session && (
+          {/* Save — only when matched or saving or saved */}
+          {(phase === "matched" || phase === "saving" || phase === "saved") && session && (
             <SavePlaylistButton />
           )}
         </div>

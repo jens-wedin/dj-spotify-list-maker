@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
       uris,
       accessToken
     );
+    console.log("[spotify-save] created playlist:", JSON.stringify(playlist, null, 2));
     return NextResponse.json({ playlist });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
