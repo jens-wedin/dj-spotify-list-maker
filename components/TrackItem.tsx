@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
@@ -17,6 +17,11 @@ export function TrackItem({ track, index }: Props) {
   const [editing, setEditing] = useState(false);
   const [previewPlaying, setPreviewPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing) titleInputRef.current?.focus();
+  }, [editing]);
 
   const {
     attributes,
@@ -105,7 +110,7 @@ export function TrackItem({ track, index }: Props) {
         {editing ? (
           <>
             <input
-              autoFocus
+              ref={titleInputRef}
               value={track.title}
               onChange={(e) => updateTrack(track.id, { title: e.target.value })}
               className="w-full bg-booth-surface border border-booth-accent rounded px-2 py-0.5 text-sm text-booth-text focus:outline-none"
