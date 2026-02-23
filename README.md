@@ -1,6 +1,6 @@
 # DJ Spotify List Maker
 
-An AI-powered music discovery and playlist creation app. Describe a vibe, genre, or era in plain language and an AI DJ (Claude) curates a tracklist for you — then save it directly to your Spotify account.
+An AI-powered music discovery and playlist creation app. Describe a vibe, genre, or era in plain language and an AI DJ (Gemini) curates a tracklist for you — then save it directly to your Spotify account.
 
 ## How it works
 
@@ -15,7 +15,7 @@ An AI-powered music discovery and playlist creation app. Describe a vibe, genre,
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
 - **State:** Zustand
-- **AI:** Anthropic Claude API (claude-sonnet-4-6)
+- **AI:** Google Gemini API (gemini-2.0-flash)
 - **Auth:** NextAuth.js with Spotify OAuth
 - **Music:** Spotify Web API
 - **Drag & Drop:** dnd-kit
@@ -25,7 +25,7 @@ An AI-powered music discovery and playlist creation app. Describe a vibe, genre,
 ### Prerequisites
 
 - Node.js 18+
-- An [Anthropic API key](https://console.anthropic.com)
+- A [Google Gemini API key](https://aistudio.google.com/app/apikey)
 - A [Spotify Developer app](https://developer.spotify.com/dashboard) (client ID + secret)
 
 ### Installation
@@ -39,7 +39,7 @@ npm install
 Create a `.env.local` file in the project root:
 
 ```env
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=your_gemini_api_key
 
 SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
@@ -73,7 +73,7 @@ Open [http://localhost:3000](http://localhost:3000).
 app/
   api/
     auth/          # NextAuth Spotify OAuth handler
-    dj-search/     # Claude AI track generation
+    dj-search/     # Gemini AI track generation
     spotify-match/ # Match AI tracks to Spotify catalog
     spotify-save/  # Create and save playlist
   page.tsx         # Main UI
@@ -84,7 +84,7 @@ components/
   SavePlaylistButton.tsx
   LoginButton.tsx
 lib/
-  claude.ts        # Anthropic client & DJ system prompt
+  claude.ts        # Gemini client & DJ system prompt
   spotify.ts       # Spotify API helpers
   auth.ts          # NextAuth config & token refresh
   types.ts

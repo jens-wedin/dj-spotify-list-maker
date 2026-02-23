@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 import type { DJTrack } from "./types";
 
 const DJ_SYSTEM_PROMPT = `You are an expert DJ with encyclopedic knowledge of music history across all genres and eras.
@@ -10,27 +10,18 @@ Each item in the array must have:
 - "title": string  — the track title
 - "note": string   — one sentence explaining why this track belongs (historical context, relevance, etc.)
 
-Be specific and accurate. Prefer iconic or influential tracks over obscure picks, but include a few gems.`;
+Be specific and accurate. Make a mix of iconic or influential tracks and some obscure picks.`;
 
 export async function djSearch(prompt: string): Promise<DJTrack[]> {
-  const client = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: `Find me tracks for: ${prompt}`,
+    config: { systemInstruction: DJ_SYSTEM_PROMPT },
   });
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 2048,
-    system: DJ_SYSTEM_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: `Find me tracks for: ${prompt}`,
-      },
-    ],
-  });
-
-  const text =
-    message.content[0].type === "text" ? message.content[0].text : "";
+  const text = (response.text ?? "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
 
   const raw = JSON.parse(text) as Array<{
     artist: string;
