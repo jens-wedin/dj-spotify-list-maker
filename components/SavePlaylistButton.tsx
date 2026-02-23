@@ -23,7 +23,7 @@ export function SavePlaylistButton() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: playlistName,
-          description: `Created by DJ List Maker`,
+          description: `Build your own DJ set at https://dj-spotify-list-maker.vercel.app/`,
           tracks,
         }),
       });
